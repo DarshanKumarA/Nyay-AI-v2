@@ -1,29 +1,31 @@
-# ⚖️ Nyay AI (न्याय AI)
+# ⚖️ Nyay AI (न्याय AI) v2
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.116-blue?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19-blue?logo=react&logoColor=white)](https://reactjs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 
 An AI-powered intelligence engine designed to accelerate justice in the Indian legal system by transforming unstructured case files into interactive, intelligent briefs.
 
 ---
 
-## 📋 About The Project
+##  About The Project
 
 Nyay AI addresses a critical challenge in the Indian judicial system: the overwhelming backlog of over 47 million pending cases, largely due to a manual, paper-based process. This application serves as a secure intelligence engine for legal professionals, ingesting thousands of pages of legal documents and converting them into a single, dynamic, and interactive "Intelligent Brief."
 
 Inspired by the vision of the Hon'ble Justice D.Y. Chandrachud, Chief Justice of India, this project aims to use modern AI to bring unprecedented speed and clarity to case analysis, ultimately helping to reduce delays and restore faith in the justice system.
 
-## ✨ Key Features
+##  Key Features
 
 * ✅ **Intelligent Brief Generation**: Automatically generates multi-layered summaries, key arguments, and involved parties from uploaded case files (PDF or TXT).
+* ✅ **Automated Legal Drafting**: Instantly creates professional legal drafts (Legal Notices, Plaints, Affidavits) tailored to the specific facts of the uploaded case.
+* ✅ **Chronological Case Timeline**: Visualizes key events and dates in an interactive timeline for rapid chronological understanding.
 * ✅ **Real-time Precedent Analysis**: Finds the most relevant historical cases from a personal vector database using advanced semantic search.
 * ✅ **Evidentiary Cross-Verification**: Flags potential contradictions in evidence across multiple documents for human review.
-* ✅ **Interactive Chat Assistant**: A conversational AI that can answer follow-up questions about the analyzed case document.
-* ✅ **AI Personalization**: Allows users to provide feedback to fine-tune a personalized model, improving future search results over time.
-* ✅ **Secure User Authentication**: A complete user management system with secure JWT-based authentication and password hashing.
-* ✅ **Fully Responsive UI**: The user interface is designed to work seamlessly across different devices.
+* ✅ **Interactive Chat Assistant**: A context-aware conversational AI that navigates the app and answers questions about case documents.
+* ✅ **AI Personalization**: Uses Reinforcement Learning from Human Feedback (RLHF) to fine-tune the model, improving search results over time.
+* ✅ **Secure User Authentication**: A complete user management system with profile settings, secure JWT-based authentication, and password hashing.
 
 ## 🛠️ Tech Stack
 
@@ -41,9 +43,9 @@ This project was built using a modern, full-stack architecture.
     * [Pydantic](https://pydantic-docs.helpmanual.io/) for data validation
     * JWT (python-jose) & passlib for authentication
 
-* **Database:**
-    * [PostgreSQL](https://www.postgresql.org/) (Production-ready)
-    * [SQLite](https://www.sqlite.org/index.html) (for local development)
+* **DevOps & Infrastructure:**
+    * [Docker](https://www.docker.com/) & Docker Compose
+    * Nginx (Reverse Proxy)
 
 * **AI & Machine Learning:**
     * [Google Gemini API](https://ai.google.dev/) for generative tasks
@@ -52,18 +54,18 @@ This project was built using a modern, full-stack architecture.
     * [LangChain](https://www.langchain.com/) for text splitting
     * [Spacy](https://spacy.io/) for NLP tasks
 
-## 🚀 Getting Started (Local Setup)
+## Getting Started
 
-To get a local copy up and running, follow these simple steps.
+You can run Nyay AI using Docker (Recommended) or manually.
 
 ### Prerequisites
-
-* Node.js (v18 or later)
-* Python (v3.9 or later)
-* npm & pip
 * Git
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for Docker method)
+* Node.js & Python 3.11 (for Manual method)
 
-### Installation
+### Option 1: Quick Start with Docker (Recommended)
+
+This will set up the Database, Backend, and Frontend automatically.
 
 1.  **Clone the repository:**
     ```sh
@@ -71,7 +73,23 @@ To get a local copy up and running, follow these simple steps.
     cd nyay-ai
     ```
 
-2.  **Setup the Backend (`/backend`):**
+2.  **Configure Environment:**
+    * Create a `.env` file in the `/backend` directory (see "Environment Variables" below).
+
+3.  **Run with Docker Compose:**
+    ```sh
+    docker compose up --build
+    ```
+
+4.  **Access the App:**
+    * Frontend: `http://localhost:5173`
+    * Backend API Docs: `http://localhost:8000/docs`
+
+---
+
+### Option 2: Manual Installation
+
+1.  **Setup the Backend (`/backend`):**
     * Navigate to the backend directory:
         ```sh
         cd backend
@@ -90,14 +108,14 @@ To get a local copy up and running, follow these simple steps.
         ```sh
         pip install -r requirements.txt
         ```
-    * Create a `.env` file in the `/backend` directory and add the required environment variables (see below).
+    * Create a `.env` file in the `/backend` directory.
     * Start the server:
         ```sh
         uvicorn main:app --reload
         ```
     > The backend will be running at `http://127.0.0.1:8000`.
 
-3.  **Setup the Frontend (`/frontend`):**
+2.  **Setup the Frontend (`/frontend`):**
     * Open a **new terminal** and navigate to the frontend directory:
         ```sh
         cd frontend
@@ -114,7 +132,7 @@ To get a local copy up and running, follow these simple steps.
 
 ## 🔑 Environment Variables
 
-You will need to create one `.env` file for this project to run locally.
+You need to create a `.env` file in the `backend/` directory for the project to run.
 
 **Backend (`/backend/.env`):**
 ```sh
