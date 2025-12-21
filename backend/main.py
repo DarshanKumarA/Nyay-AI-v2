@@ -12,7 +12,6 @@ from contextlib import asynccontextmanager
 from typing import List, Optional, Dict, Any, AsyncGenerator
 import asyncio
 from datetime import datetime
-import random
 
 # --- Library Imports ---
 from fastapi import FastAPI, Depends, HTTPException, status, File, UploadFile, BackgroundTasks, Body
@@ -35,25 +34,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 import models, schemas, crud, auth
 from config import settings
 from database import engine as main_engine, Base, get_db
-
-# --- NEW: API Key Rotator Function ---
-def get_configured_genai_model(model_name: str = 'gemini-1.5-flash'):
-    """
-    Picks a random API key from the list and returns a configured model.
-    """
-    try:
-        # 1. Pick a random key
-        selected_key = random.choice(settings.api_key_list)
-        
-        # 2. Configure the global genai library with this key
-        genai.configure(api_key=selected_key)
-        
-        # 3. Return the requested model
-        return genai.GenerativeModel(model_name)
-    except Exception as e:
-        print(f"Error configuring API key: {e}")
-        # Fallback (optional, just in case list is empty)
-        return genai.GenerativeModel(model_name)
 
 # --- Global Variables & Path Definitions ---
 gemini_model = None
@@ -143,7 +123,7 @@ async def get_semantic_queries_from_gemini(text: str) -> List[str]:
     """
     response = None # [FIX] Define response here
     try:
-        response = await get_configured_genai_model().generate_content_async(prompt)
+        response = await gemini_model.generate_content_async(prompt)
         cleaned_text = response.text.strip().replace("```json", "").replace("```", "").strip()
         data = json.loads(cleaned_text)
         queries = data.get("queries", [])
@@ -219,7 +199,7 @@ def generate_intelligent_brief(text: str) -> Dict[str, Any]:
     """
     response = None # [FIX] Define response here
     try:
-        response = get_configured_genai_model().generate_content(prompt)
+        response = gemini_model.generate_content(prompt)
         json_string = response.text.strip().replace("```json", "").replace("```", "").strip()
         return json.loads(json_string)
 
@@ -259,7 +239,7 @@ def generate_ner_analysis(text: str) -> Dict[str, Any]:
     """
     response = None # [FIX] Define response here
     try:
-        response = get_configured_genai_model().generate_content(prompt)
+        response = gemini_model.generate_content(prompt)
         json_string = response.text.strip().replace("```json", "").replace("```", "").strip()
         return json.loads(json_string)
 
@@ -299,7 +279,7 @@ async def generate_timeline_events(text: str, filename: str) -> List[Dict[str, s
     
     response = None
     try:
-        response = await get_configured_genai_model().generate_content_async(prompt)
+        response = await gemini_model.generate_content_async(prompt)
         cleaned_text = response.text.strip().replace("```json", "").replace("```", "").strip()
         data = json.loads(cleaned_text)
         
@@ -345,7 +325,7 @@ async def generate_legal_draft(document_type: str, context_text: str, instructio
     """
     
     try:
-        response = await get_configured_genai_model().generate_content_async(prompt)
+        response = await gemini_model.generate_content_async(prompt)
         return response.text.strip()
     except Exception as e:
         print(f"Error generating draft: {e}")
@@ -355,12 +335,17 @@ async def generate_legal_draft(document_type: str, context_text: str, instructio
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Application startup...")
-    # REMOVED: global gemini_model, chat_model initialization
+    global gemini_model, chat_model
     os.makedirs(DOCUMENTS_PATH, exist_ok=True)
     os.makedirs(USER_CHROMA_PATH, exist_ok=True)
-    
-    # We no longer configure genai here. It happens per-request now.
-    
+    try:
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        # [FIX] Changed model name to the correct, stable version
+        gemini_model = genai.GenerativeModel('gemini-flash-latest')
+        chat_model = genai.GenerativeModel('gemini-flash-latest')
+        print("Gemini API configured successfully.")
+    except Exception as e:
+        print(f"CRITICAL ERROR: Failed to configure Gemini API: {e}")
     async with main_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     print("Main SQL database tables created/verified.")
@@ -579,7 +564,7 @@ async def find_precedents_unified(file: UploadFile = File(...), db: AsyncSession
         """
         response = None # [FIX] Define response here
         try:
-            response = await get_configured_genai_model().generate_content_async(prompt)
+            response = await gemini_model.generate_content_async(prompt)
             raw_analysis = json.loads(response.text.strip().replace("```json", "").replace("```", ""))
             
             analysis_list = raw_analysis.get("precedent_analyses", [])
@@ -657,7 +642,7 @@ async def analyze_contradictions(filenames: List[str] = Body(..., embed=True), d
     """
     response = None # [FIX] Define response here
     try:
-        response = get_configured_genai_model().generate_content(prompt)
+        response = gemini_model.generate_content(prompt)
         json_string = response.text.strip().replace("```json", "").replace("```", "").strip()
         analysis_data = json.loads(json_string)
         report_items = analysis_data.get("contradiction_report", [])
@@ -721,7 +706,7 @@ async def chat_with_ai(request: schemas.ChatRequest, current_user: models.User =
     ]
     full_history.extend([{'role': msg.role, 'parts': [part['text'] for part in msg.parts]} for msg in request.history])
 
-    chat_session = get_configured_genai_model().start_chat(history=full_history)
+    chat_session = chat_model.start_chat(history=full_history)
 
     full_prompt = request.question
     if request.context:
@@ -776,7 +761,7 @@ This key should have a value of a JSON array of 3 insightful follow-up questions
     **IMPORTANT: Respond ONLY with the raw JSON object.** """
     response = None # [FIX] Define response here
     try:
-        response = await get_configured_genai_model().generate_content_async(prompt)
+        response = await gemini_model.generate_content_async(prompt)
         cleaned_text = response.text.strip().replace("```json", "").replace("```", "").strip()
         data = json.loads(cleaned_text)
         return schemas.SuggestedQuestionsResponse(questions=data.get("questions", []))
