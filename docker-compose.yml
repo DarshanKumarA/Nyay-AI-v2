@@ -1,0 +1,23 @@
+# docker-compose.yml
+
+services:
+  backend:
+    build: ./backend
+    container_name: nyay_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # This maps the folder on your laptop to the container
+      # Ensures uploaded files don't vanish if you restart the app
+      - ./backend/saved_files:/app/saved_files
+      - ./backend/nyay_ai.db:/app/nyay_ai.db
+    env_file:
+      - ./backend/.env
+
+  frontend:
+    build: ./frontend
+    container_name: nyay_frontend
+    ports:
+      - "5173:80" # Maps localhost:5173 to the container's web server
+    depends_on:
+      - backend

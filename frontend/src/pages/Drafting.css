@@ -1,0 +1,271 @@
+/* frontend/src/pages/Drafting.css */
+
+.drafting-container {
+    height: calc(100vh - 4rem);
+    /* Fill remaining height */
+    display: flex;
+    gap: 1.5rem;
+    animation: fadeIn 0.5s ease-out;
+    overflow: hidden;
+    /* Prevent outer scroll */
+}
+
+/* --- LEFT PANEL: Controls --- */
+.drafting-controls {
+    width: 350px;
+    background-color: var(--card-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.drafting-controls h2 {
+    display: flex;
+    /* Enables flexbox layout */
+    align-items: center;
+    /* Vertically centers the icon with text */
+    gap: 0.75rem;
+    /* Adds consistent space between icon and text */
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    /* Keeps the spacing below the header */
+    color: var(--primary-color);
+}
+
+.control-group {
+    margin-bottom: 1.5rem;
+}
+
+.control-group label {
+    display: block;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.control-group select,
+.control-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--font-color);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+}
+
+.control-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.control-group select:focus,
+.control-group textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Reusing file list styles but making them compact */
+.compact-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem;
+    background-color: var(--background-color);
+}
+
+.compact-file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+}
+
+.compact-file-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.generate-btn {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    border: none;
+    padding: 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-top: auto;
+    /* Push to bottom */
+}
+
+.generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.generate-btn:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+}
+
+/* --- RIGHT PANEL: The Editor --- */
+.drafting-editor {
+    flex-grow: 1;
+    background-color: #1a1a1a;
+    /* Slightly darker for contrast */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.editor-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-color);
+    border-radius: 8px 8px 0 0;
+}
+
+.editor-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+}
+
+.editor-actions button {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--font-color);
+    padding: 0.5rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.editor-actions button:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.editor-textarea {
+    flex-grow: 1;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    padding: 2rem;
+    color: #e0e0e0;
+    font-family: 'Courier New', Courier, monospace;
+    /* Monospace for legal drafting feel */
+    font-size: 1rem;
+    line-height: 1.8;
+    resize: none;
+}
+
+.editor-textarea:focus {
+    outline: none;
+}
+
+.editor-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--secondary-color);
+    text-align: center;
+    opacity: 0.5;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+    .drafting-container {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
+
+    .drafting-controls {
+        width: 100%;
+    }
+
+    .drafting-editor {
+        height: 600px;
+    }
+}
+
+.compact-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem;
+    background-color: var(--background-color);
+}
+
+/* --- NEW: Standardized Scrollbar Styles --- */
+.compact-file-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.compact-file-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.compact-file-list::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.compact-file-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.control-group textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+.control-group textarea::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.control-group textarea::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.control-group textarea::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.editor-actions button.copy-success {
+    color: #4caf50;
+    /* Green color */
+    border-color: #4caf50;
+}
+
+.editor-actions button.copy-success:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+}
