@@ -130,9 +130,10 @@ This will set up the Database, Backend, and Frontend automatically.
         ```
     > The frontend will be running at `http://localhost:5173`.
 
-## 🔑 Environment Variables
+## Environment Variables
 
 You need to create a `.env` file in the `backend/` directory for the project to run.
+**If the gemini api doesnt configure to the latest versions, please update the gemini model in the backend main.py and then retry**
 
 **Backend (`/backend/.env`):**
 ```sh
