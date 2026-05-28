@@ -27,7 +27,7 @@ Inspired by the vision of the Hon'ble Justice D.Y. Chandrachud, Chief Justice of
 * ✅ **AI Personalization**: Uses Reinforcement Learning from Human Feedback (RLHF) to fine-tune the model, improving search results over time.
 * ✅ **Secure User Authentication**: A complete user management system with profile settings, secure JWT-based authentication, and password hashing.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 This project was built using a modern, full-stack architecture.
 
