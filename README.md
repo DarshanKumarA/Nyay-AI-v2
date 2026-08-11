@@ -1,4 +1,4 @@
-# ⚖️ Nyay AI (न्याय AI) v2
+# Nyay AI v2
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)](https://www.python.org/)
@@ -6,69 +6,49 @@
 [![React](https://img.shields.io/badge/React-19-blue?logo=react&logoColor=white)](https://reactjs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 
-An AI-powered intelligence engine designed to accelerate justice in the Indian legal system by transforming unstructured case files into interactive, intelligent briefs.
+Legal document analysis and drafting platform for legal case files, witness statements, and evidence records.
 
 ---
 
-## 📌 About The Project
+## About
 
-Nyay AI addresses a critical challenge in the judicial system: the overwhelming backlog of pending cases due to manual, document-heavy processes. This application serves as a secure intelligence engine for legal professionals, ingesting complex case files (PDFs & TXT) and converting them into a single, dynamic, and interactive "Intelligent Brief."
-
-Inspired by modern AI research and legal tech innovation, this project brings unprecedented speed and clarity to case analysis, legal drafting, precedent search, and contradiction detection.
+Nyay AI processes legal case files (PDF and TXT) and generates structured briefs, timelines, precedent matches, and legal drafts. The application provides a full-stack interface and API for legal research and case analysis.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-* 🚀 **Multi-Provider LLM Engine**: Powered by **OpenRouter API** (supporting `meta-llama/llama-3.3-70b-instruct` and `openai/gpt-4o`) with seamless fallback to **Google Gemini** (`gemini-2.5-flash`).
-* 📜 **Intelligent Brief Generation**: Automatically generates concise multi-layered summaries, key arguments, and involved parties from uploaded case documents.
-* ✍️ **Automated Legal Drafting**: Instantly drafts legal notices, plaints, and affidavits using facts extracted directly from case files.
-* 📅 **Chronological Case Timeline**: Visualizes key case events and dates in an interactive timeline.
-* 🔍 **Real-time Precedent Search**: Discovers relevant historical cases and precedent patterns from user case documents using ChromaDB vector search and reciprocal rank fusion.
-* ⚡ **Evidentiary Contradiction Detection**: Flags direct conflicts and factual impossibilities across multiple witness statements and exhibit records.
-* 💬 **Context-Aware Chat Assistant**: Interactive AI assistant featuring an animated glowing typing indicator and clean Markdown text formatting.
-* 🛠️ **Robust JSON Parsing & Syntax Repair**: `parse_json_from_llm` automatically recovers from LLM syntax glitches (missing quotes, unescaped newlines, trailing commas) for 100% reliable API responses.
-* 🔒 **Secure Authentication**: Complete JWT-based authentication system with password hashing and user profiles.
-
----
-
-## 🛠️ Tech Stack
-
-* **Frontend:**
-  * [React 19](https://reactjs.org/) with Vite
-  * React Router for navigation
-  * React Context API for state management
-  * Axios for API communication
-
-* **Backend:**
-  * [FastAPI](https://fastapi.tiangolo.com/) with Uvicorn
-  * [SQLAlchemy](https://www.sqlalchemy.org/) ORM & SQLite
-  * [Pydantic](https://pydantic-docs.helpmanual.io/) for data validation
-  * JWT (`python-jose`) & `passlib` for authentication
-
-* **AI & NLP:**
-  * **OpenRouter API** (Meta Llama 3.3 70B Instruct / OpenAI GPT-4o)
-  * **Google Gemini API** (`gemini-2.5-flash`)
-  * **Sentence-Transformers** (`all-MiniLM-L6-v2`) for embeddings
-  * **ChromaDB** for vector storage & semantic search
-  * **PyPDF** for PDF document processing
-
-* **DevOps & Containers:**
-  * [Docker](https://www.docker.com/) & Docker Compose
-  * Nginx (Reverse Proxy for Frontend container)
+* **Multi-Provider LLM Integration**: Uses OpenRouter API (`meta-llama/llama-3.3-70b-instruct`, `openai/gpt-4o`) with fallback to Google Gemini (`gemini-2.5-flash`).
+* **Intelligent Brief Summaries**: Extracts core legal arguments, summaries, and involved parties from uploaded case documents.
+* **Automated Legal Drafting**: Generates legal notices, plaints, and affidavits using case context.
+* **Chronological Case Timelines**: Extracts chronological event sequences with dates from case materials.
+* **Precedent Analysis**: Conducts vector similarity search via ChromaDB and reciprocal rank fusion to find matching historical precedents.
+* **Contradiction Detection**: Identifies factual conflicts across witness testimonies and exhibit records.
+* **Context-Aware Assistant**: Embedded assistant for document querying and app navigation.
+* **LLM Output Recovery**: `parse_json_from_llm` automatically parses unquoted strings, raw newlines, and trailing commas from model outputs.
+* **Authentication**: JWT authentication with user profiles and password encryption.
 
 ---
 
-## 🚀 Getting Started
+## Tech Stack
+
+* **Frontend**: React 19, Vite, React Router, Context API, Axios
+* **Backend**: FastAPI, Uvicorn, SQLAlchemy, SQLite, Pydantic, Passlib (BCrypt)
+* **AI & Retrieval**: OpenRouter API, Google Gemini API, Sentence-Transformers (`all-MiniLM-L6-v2`), ChromaDB, PyPDF
+* **DevOps**: Docker, Docker Compose, Nginx
+
+---
+
+## Getting Started
 
 ### Prerequisites
-* Git
-* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Optional, for Docker deployment)
-* Node.js (v18+) & Python (v3.11+)
+* Node.js (v18+)
+* Python (v3.11+)
+* Docker & Docker Compose (Optional)
 
 ---
 
-### Option 1: Quick Start with Docker (Recommended)
+### Option 1: Running with Docker
 
 1. **Clone the repository:**
    ```bash
@@ -76,80 +56,71 @@ Inspired by modern AI research and legal tech innovation, this project brings un
    cd nyay-ai
    ```
 
-2. **Configure Environment File:**
-   Create a `.env` file in the `backend/` directory (see [Environment Variables](#-environment-variables) below).
+2. **Configure Environment:**
+   Create `.env` in `backend/` directory (see [Environment Variables](#environment-variables)).
 
-3. **Build & Run with Docker Compose:**
+3. **Start Containers:**
    ```bash
    docker compose up --build
    ```
 
-4. **Access the Application:**
-   * Frontend Web App: `http://localhost:5173`
-   * Backend API Documentation: `http://localhost:8000/docs`
+   * Frontend: `http://localhost:5173`
+   * API Docs: `http://localhost:8000/docs`
 
 ---
 
-### Option 2: Manual Installation
+### Option 2: Manual Setup
 
-#### 1. Setup Backend (`/backend`)
+#### 1. Backend Setup
 
 ```powershell
-# Navigate to backend
 cd backend
 
-# Create & activate virtual environment (Windows)
+# Create virtual environment
 python -m venv venv
 .\venv\Scripts\activate
 
-# Install dependencies
+# Install requirements
 pip install -r requirements.txt
-
-# Create .env file inside backend/ directory
 ```
 
-Start the FastAPI server:
+Run backend server:
 ```powershell
 python -m uvicorn main:app --port 8000 --reload
 ```
-> Backend runs at `http://127.0.0.1:8000`
+Server runs at `http://127.0.0.1:8000`
 
-#### 2. Setup Frontend (`/frontend`)
+#### 2. Frontend Setup
 
-Open a new terminal window:
+In a second terminal window:
 ```powershell
-# Navigate to frontend
 cd frontend
-
-# Install NPM dependencies
 npm install
-
-# Start Vite dev server
 npm run dev
 ```
-> Frontend runs at `http://localhost:5173` (or `http://localhost:5174`)
+Client runs at `http://localhost:5173`
 
 ---
 
-## 🔑 Environment Variables
+## Environment Variables
 
-Create a `.env` file in the `backend/` directory:
+Create `.env` inside `backend/`:
 
 ```env
-# Security key for JWT token signing
+# JWT Secret Key
 SECRET_KEY="your_super_secret_key_here"
 
-# OpenRouter API Configuration (Recommended)
+# OpenRouter API (Primary)
 OPENROUTER_API_KEY="sk-or-v1-your_openrouter_api_key_here"
 OPENROUTER_MODEL_NAME="meta-llama/llama-3.3-70b-instruct"
 
-# Google Gemini API Configuration (Fallback)
+# Google Gemini API (Fallback)
 GEMINI_API_KEY="your_gemini_api_key_here"
 GEMINI_MODEL_NAME="gemini-2.5-flash"
 ```
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the MIT License. See `LICENSE` for details.
