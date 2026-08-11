@@ -34,6 +34,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 import models, schemas, crud, auth
 from config import settings
 from database import engine as main_engine, Base, get_db
+from ai_provider import OpenRouterModel, parse_json_from_llm
 
 # --- Global Variables & Path Definitions ---
 gemini_model = None
@@ -121,11 +122,10 @@ async def get_semantic_queries_from_gemini(text: str) -> List[str]:
 
     **IMPORTANT: Respond ONLY with the raw JSON object.**
     """
-    response = None # [FIX] Define response here
+    response = None
     try:
         response = await gemini_model.generate_content_async(prompt)
-        cleaned_text = response.text.strip().replace("```json", "").replace("```", "").strip()
-        data = json.loads(cleaned_text)
+        data = parse_json_from_llm(response.text)
         queries = data.get("queries", [])
         print(f"Generated {len(queries)} semantic queries.")
         return queries
@@ -197,18 +197,14 @@ def generate_intelligent_brief(text: str) -> Dict[str, Any]:
     - "involved_parties": A JSON array of strings for involved parties.
     **IMPORTANT: Respond ONLY with the raw JSON object.**
     """
-    response = None # [FIX] Define response here
+    response = None
     try:
         response = gemini_model.generate_content(prompt)
-        json_string = response.text.strip().replace("```json", "").replace("```", "").strip()
-        return json.loads(json_string)
+        return parse_json_from_llm(response.text)
 
-    # [FIX] This is the specific fix for your 500 error.
-    # We catch the JSONDecodeError specifically.
-    except json.JSONDecodeError as e:
-        print(f"[CRITICAL JSON PARSE ERROR - BRIEF]: {e}")
+    except Exception as e:
+        print(f"[JSON PARSE ERROR - BRIEF]: {e}")
         print(f"[RAW LLM RESPONSE]: {response.text if response else 'No response'}")
-        # We raise a 422 error (Unprocessable Entity) which is more accurate
         raise HTTPException(status_code=422, detail="AI model returned an invalid format for intelligent brief.")
     
     except Exception as e:
@@ -237,14 +233,12 @@ def generate_ner_analysis(text: str) -> Dict[str, Any]:
     - "laws_articles": Specific laws, sections, or articles cited (e.g., "Article 311 of the Constitution", "Section 12-AA of the Income Tax Act").
     **IMPORTANT: Respond ONLY with the raw JSON object, without any surrounding text or markdown formatting.**
     """
-    response = None # [FIX] Define response here
+    response = None
     try:
         response = gemini_model.generate_content(prompt)
-        json_string = response.text.strip().replace("```json", "").replace("```", "").strip()
-        return json.loads(json_string)
+        return parse_json_from_llm(response.text)
 
-    # [FIX] More specific exception handling
-    except json.JSONDecodeError as e:
+    except Exception as e:
         print(f"[JSON PARSE ERROR - NER]: {e}")
         print(f"[RAW LLM RESPONSE]: {response.text if response else 'No response'}")
         raise HTTPException(status_code=422, detail="The AI model returned an unexpected format for NER.")
@@ -280,11 +274,9 @@ async def generate_timeline_events(text: str, filename: str) -> List[Dict[str, s
     response = None
     try:
         response = await gemini_model.generate_content_async(prompt)
-        cleaned_text = response.text.strip().replace("```json", "").replace("```", "").strip()
-        data = json.loads(cleaned_text)
+        data = parse_json_from_llm(response.text)
         
         events = data.get("events", [])
-        # Add the source filename to each event
         for event in events:
             event["source_file"] = filename
             
@@ -339,13 +331,19 @@ async def lifespan(app: FastAPI):
     os.makedirs(DOCUMENTS_PATH, exist_ok=True)
     os.makedirs(USER_CHROMA_PATH, exist_ok=True)
     try:
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        # [FIX] Changed model name to the correct, stable version
-        gemini_model = genai.GenerativeModel('gemini-flash-latest')
-        chat_model = genai.GenerativeModel('gemini-flash-latest')
-        print("Gemini API configured successfully.")
+        if settings.OPENROUTER_API_KEY:
+            or_model_name = settings.OPENROUTER_MODEL_NAME
+            gemini_model = OpenRouterModel(api_key=settings.OPENROUTER_API_KEY, model_name=or_model_name)
+            chat_model = OpenRouterModel(api_key=settings.OPENROUTER_API_KEY, model_name=or_model_name)
+            print(f"OpenRouter API configured successfully with model: {or_model_name}")
+        elif settings.GEMINI_API_KEY:
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+            model_name = settings.GEMINI_MODEL_NAME
+            gemini_model = genai.GenerativeModel(model_name)
+            chat_model = genai.GenerativeModel(model_name)
+            print(f"Gemini API configured successfully with model: {model_name}")
     except Exception as e:
-        print(f"CRITICAL ERROR: Failed to configure Gemini API: {e}")
+        print(f"CRITICAL ERROR: Failed to configure AI API: {e}")
     async with main_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     print("Main SQL database tables created/verified.")
@@ -529,9 +527,12 @@ async def find_precedents_unified(file: UploadFile = File(...), db: AsyncSession
     for filename in top_unique_filenames:
         precedent_path = os.path.join(DOCUMENTS_PATH, filename)
         if os.path.exists(precedent_path):
-            with open(precedent_path, "r", encoding='utf-8', errors='ignore') as f:
-                precedent_text = f.read()
-            context += f"--- PRECEDENT CASE: {filename} ---\n{precedent_text}\n\n"
+            with open(precedent_path, "rb") as f:
+                content_type = 'application/pdf' if filename.lower().endswith('.pdf') else 'text/plain'
+                file_content = f.read()
+            precedent_text = get_text_from_upload(file_content, content_type)
+            if precedent_text.strip():
+                context += f"--- PRECEDENT CASE: {filename} ---\n{precedent_text}\n\n"
             
     if not context.strip():
         precedent_analysis_data = {
@@ -562,10 +563,10 @@ async def find_precedents_unified(file: UploadFile = File(...), db: AsyncSession
         
         **IMPORTANT: Respond ONLY with the raw JSON object.**
         """
-        response = None # [FIX] Define response here
+        response = None
         try:
             response = await gemini_model.generate_content_async(prompt)
-            raw_analysis = json.loads(response.text.strip().replace("```json", "").replace("```", ""))
+            raw_analysis = parse_json_from_llm(response.text)
             
             analysis_list = raw_analysis.get("precedent_analyses", [])
             
@@ -581,8 +582,7 @@ async def find_precedents_unified(file: UploadFile = File(...), db: AsyncSession
                 },
                 "overall_relevance": raw_analysis.get("overall_relevance", "No summary provided.")
             }
-        # [FIX] Add logging for raw response text
-        except (json.JSONDecodeError, IndexError) as e:
+        except Exception as e:
             print(f"Error processing AI response for precedent analysis: {e}")
             print(f"[RAW LLM RESPONSE]: {response.text if response else 'No response'}")
             raise HTTPException(status_code=500, detail="AI model returned an invalid format for precedent analysis.")
@@ -640,11 +640,10 @@ async def analyze_contradictions(filenames: List[str] = Body(..., embed=True), d
 
     **IMPORTANT: Respond ONLY with the raw JSON object.**
     """
-    response = None # [FIX] Define response here
+    response = None
     try:
         response = gemini_model.generate_content(prompt)
-        json_string = response.text.strip().replace("```json", "").replace("```", "").strip()
-        analysis_data = json.loads(json_string)
+        analysis_data = parse_json_from_llm(response.text)
         report_items = analysis_data.get("contradiction_report", [])
         if report_items and report_items[0] != "No direct contradictions were found.":
             contradiction_to_save = schemas.ContradictionCreate(
@@ -722,21 +721,48 @@ async def chat_with_ai(request: schemas.ChatRequest, current_user: models.User =
     response = None 
     try:
         response = await chat_session.send_message_async(full_prompt)
-        cleaned_text = response.text.strip().replace("```json", "").replace("```", "").strip()
-        response_data = json.loads(cleaned_text)
+        raw_text = response.text.strip() if response else ""
+        response_data = parse_json_from_llm(raw_text)
+        
+        resp_type = "answer"
+        ans_text = raw_text
+        pg_target = None
+
+        if isinstance(response_data, dict):
+            resp_type = response_data.get("response_type", "answer")
+            ans_text = response_data.get("answer", raw_text)
+            pg_target = response_data.get("page")
+
+        # Double check if ans_text itself is a stringified JSON object
+        if isinstance(ans_text, str) and ans_text.strip().startswith("{"):
+            try:
+                nested = parse_json_from_llm(ans_text)
+                if isinstance(nested, dict) and "answer" in nested:
+                    ans_text = nested.get("answer", ans_text)
+                    if "response_type" in nested:
+                        resp_type = nested.get("response_type", resp_type)
+                    if "page" in nested:
+                        pg_target = nested.get("page", pg_target)
+            except Exception:
+                pass
         
         return schemas.ChatResponse(
-            response_type=response_data.get("response_type", "answer"),
-            answer=response_data.get("answer", "I'm sorry, I couldn't process that request."),
-            page=response_data.get("page")
+            response_type=resp_type,
+            answer=str(ans_text),
+            page=pg_target
         )
 
-    except (json.JSONDecodeError, KeyError) as e:
-        print(f"Error parsing AI's JSON response: {e}. Raw response: {response.text}")
-        return schemas.ChatResponse(response_type="answer", answer=response.text if response else "Sorry, an error occurred.")
     except Exception as e:
         print(f"Error during chat generation: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get a response from the AI.")
+        clean_fallback = response.text if response else "Sorry, an error occurred."
+        if isinstance(clean_fallback, str) and clean_fallback.strip().startswith("{"):
+            try:
+                nested = parse_json_from_llm(clean_fallback)
+                if isinstance(nested, dict) and "answer" in nested:
+                    clean_fallback = nested.get("answer", clean_fallback)
+            except Exception:
+                pass
+        return schemas.ChatResponse(response_type="answer", answer=clean_fallback)
 
 
 @app.post("/generate-suggested-questions", response_model=schemas.SuggestedQuestionsResponse)
@@ -759,11 +785,10 @@ This key should have a value of a JSON array of 3 insightful follow-up questions
     {', '.join(request.summary_data.get('involved_parties', []))}
 
     **IMPORTANT: Respond ONLY with the raw JSON object.** """
-    response = None # [FIX] Define response here
+    response = None
     try:
         response = await gemini_model.generate_content_async(prompt)
-        cleaned_text = response.text.strip().replace("```json", "").replace("```", "").strip()
-        data = json.loads(cleaned_text)
+        data = parse_json_from_llm(response.text)
         return schemas.SuggestedQuestionsResponse(questions=data.get("questions", []))
     
     # [FIX] More specific exception handling

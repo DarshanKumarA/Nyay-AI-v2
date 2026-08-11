@@ -126,15 +126,27 @@ const Chatbot = () => {
           <div className="chat-body">
             {chatHistory.map((msg, index) => {
               const messageId = `msg-${index}`;
+              let textToRender = msg.parts?.[0]?.text || '';
+              
+              // Clean any raw stringified JSON object if present
+              if (typeof textToRender === 'string' && textToRender.trim().startsWith('{')) {
+                try {
+                  const parsed = JSON.parse(textToRender.trim());
+                  if (parsed.answer) {
+                    textToRender = parsed.answer;
+                  }
+                } catch (e) {}
+              }
+
               return (
                 <div key={index} className={`chat-message ${msg.role === 'model' ? 'ai' : 'user'}`}>
                   <div className="message-content">
                     {msg.isLoading ? (
-                      <div className="typing-indicator">
+                      <div className="typing-indicator" title="Nyay AI is thinking...">
                         <span></span><span></span><span></span>
                       </div>
                     ) : (
-                      <ReactMarkdown>{msg.parts[0].text}</ReactMarkdown>
+                      <ReactMarkdown>{textToRender}</ReactMarkdown>
                     )}
                     
                     {msg.suggestions && (

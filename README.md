@@ -10,135 +10,146 @@ An AI-powered intelligence engine designed to accelerate justice in the Indian l
 
 ---
 
-##  About The Project
+## 📌 About The Project
 
-Nyay AI addresses a critical challenge in the Indian judicial system: the overwhelming backlog of over 47 million pending cases, largely due to a manual, paper-based process. This application serves as a secure intelligence engine for legal professionals, ingesting thousands of pages of legal documents and converting them into a single, dynamic, and interactive "Intelligent Brief."
+Nyay AI addresses a critical challenge in the judicial system: the overwhelming backlog of pending cases due to manual, document-heavy processes. This application serves as a secure intelligence engine for legal professionals, ingesting complex case files (PDFs & TXT) and converting them into a single, dynamic, and interactive "Intelligent Brief."
 
-Inspired by the vision of the Hon'ble Justice D.Y. Chandrachud, Chief Justice of India, this project aims to use modern AI to bring unprecedented speed and clarity to case analysis, ultimately helping to reduce delays and restore faith in the justice system.
+Inspired by modern AI research and legal tech innovation, this project brings unprecedented speed and clarity to case analysis, legal drafting, precedent search, and contradiction detection.
 
-##  Key Features
+---
 
-* ✅ **Intelligent Brief Generation**: Automatically generates multi-layered summaries, key arguments, and involved parties from uploaded case files (PDF or TXT).
-* ✅ **Automated Legal Drafting**: Instantly creates professional legal drafts (Legal Notices, Plaints, Affidavits) tailored to the specific facts of the uploaded case.
-* ✅ **Chronological Case Timeline**: Visualizes key events and dates in an interactive timeline for rapid chronological understanding.
-* ✅ **Real-time Precedent Analysis**: Finds the most relevant historical cases from a personal vector database using advanced semantic search.
-* ✅ **Evidentiary Cross-Verification**: Flags potential contradictions in evidence across multiple documents for human review.
-* ✅ **Interactive Chat Assistant**: A context-aware conversational AI that navigates the app and answers questions about case documents.
-* ✅ **AI Personalization**: Uses Reinforcement Learning from Human Feedback (RLHF) to fine-tune the model, improving search results over time.
-* ✅ **Secure User Authentication**: A complete user management system with profile settings, secure JWT-based authentication, and password hashing.
+## ✨ Key Features
 
-## Tech Stack
+* 🚀 **Multi-Provider LLM Engine**: Powered by **OpenRouter API** (supporting `meta-llama/llama-3.3-70b-instruct` and `openai/gpt-4o`) with seamless fallback to **Google Gemini** (`gemini-2.5-flash`).
+* 📜 **Intelligent Brief Generation**: Automatically generates concise multi-layered summaries, key arguments, and involved parties from uploaded case documents.
+* ✍️ **Automated Legal Drafting**: Instantly drafts legal notices, plaints, and affidavits using facts extracted directly from case files.
+* 📅 **Chronological Case Timeline**: Visualizes key case events and dates in an interactive timeline.
+* 🔍 **Real-time Precedent Search**: Discovers relevant historical cases and precedent patterns from user case documents using ChromaDB vector search and reciprocal rank fusion.
+* ⚡ **Evidentiary Contradiction Detection**: Flags direct conflicts and factual impossibilities across multiple witness statements and exhibit records.
+* 💬 **Context-Aware Chat Assistant**: Interactive AI assistant featuring an animated glowing typing indicator and clean Markdown text formatting.
+* 🛠️ **Robust JSON Parsing & Syntax Repair**: `parse_json_from_llm` automatically recovers from LLM syntax glitches (missing quotes, unescaped newlines, trailing commas) for 100% reliable API responses.
+* 🔒 **Secure Authentication**: Complete JWT-based authentication system with password hashing and user profiles.
 
-This project was built using a modern, full-stack architecture.
+---
+
+## 🛠️ Tech Stack
 
 * **Frontend:**
-    * [React](https://reactjs.org/) (with Vite)
-    * React Router for navigation
-    * React Context for state management
-    * Axios for API Communication
+  * [React 19](https://reactjs.org/) with Vite
+  * React Router for navigation
+  * React Context API for state management
+  * Axios for API communication
 
 * **Backend:**
-    * [FastAPI](https://fastapi.tiangolo.com/) (with Uvicorn)
-    * [SQLAlchemy](https://www.sqlalchemy.org/) ORM
-    * [Pydantic](https://pydantic-docs.helpmanual.io/) for data validation
-    * JWT (python-jose) & passlib for authentication
+  * [FastAPI](https://fastapi.tiangolo.com/) with Uvicorn
+  * [SQLAlchemy](https://www.sqlalchemy.org/) ORM & SQLite
+  * [Pydantic](https://pydantic-docs.helpmanual.io/) for data validation
+  * JWT (`python-jose`) & `passlib` for authentication
 
-* **DevOps & Infrastructure:**
-    * [Docker](https://www.docker.com/) & Docker Compose
-    * Nginx (Reverse Proxy)
+* **AI & NLP:**
+  * **OpenRouter API** (Meta Llama 3.3 70B Instruct / OpenAI GPT-4o)
+  * **Google Gemini API** (`gemini-2.5-flash`)
+  * **Sentence-Transformers** (`all-MiniLM-L6-v2`) for embeddings
+  * **ChromaDB** for vector storage & semantic search
+  * **PyPDF** for PDF document processing
 
-* **AI & Machine Learning:**
-    * [Google Gemini API](https://ai.google.dev/) for generative tasks
-    * [Sentence-Transformers](https://www.sbert.net/) for text embeddings
-    * [ChromaDB](https://www.trychroma.com/) for vector storage and similarity search
-    * [LangChain](https://www.langchain.com/) for text splitting
-    * [Spacy](https://spacy.io/) for NLP tasks
+* **DevOps & Containers:**
+  * [Docker](https://www.docker.com/) & Docker Compose
+  * Nginx (Reverse Proxy for Frontend container)
 
-## Getting Started
+---
 
-You can run Nyay AI using Docker (Recommended) or manually.
+## 🚀 Getting Started
 
 ### Prerequisites
 * Git
-* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for Docker method)
-* Node.js & Python 3.11 (for Manual method)
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Optional, for Docker deployment)
+* Node.js (v18+) & Python (v3.11+)
+
+---
 
 ### Option 1: Quick Start with Docker (Recommended)
 
-This will set up the Database, Backend, and Frontend automatically.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/DarshanKumarA/nyay-ai.git
+   cd nyay-ai
+   ```
 
-1.  **Clone the repository:**
-    ```sh
-    git clone [https://github.com/DarshanKumarA/nyay-ai.git](https://github.com/DarshanKumarA/nyay-ai.git)
-    cd nyay-ai
-    ```
+2. **Configure Environment File:**
+   Create a `.env` file in the `backend/` directory (see [Environment Variables](#-environment-variables) below).
 
-2.  **Configure Environment:**
-    * Create a `.env` file in the `/backend` directory (see "Environment Variables" below).
+3. **Build & Run with Docker Compose:**
+   ```bash
+   docker compose up --build
+   ```
 
-3.  **Run with Docker Compose:**
-    ```sh
-    docker compose up --build
-    ```
-
-4.  **Access the App:**
-    * Frontend: `http://localhost:5173`
-    * Backend API Docs: `http://localhost:8000/docs`
+4. **Access the Application:**
+   * Frontend Web App: `http://localhost:5173`
+   * Backend API Documentation: `http://localhost:8000/docs`
 
 ---
 
 ### Option 2: Manual Installation
 
-1.  **Setup the Backend (`/backend`):**
-    * Navigate to the backend directory:
-        ```sh
-        cd backend
-        ```
-    * Create and activate a Python virtual environment:
-        ```sh
-        # On Windows
-        python -m venv venv
-        .\venv\Scripts\activate
+#### 1. Setup Backend (`/backend`)
 
-        # On macOS / Linux
-        python3 -m venv venv
-        source venv/bin/activate
-        ```
-    * Install Python packages:
-        ```sh
-        pip install -r requirements.txt
-        ```
-    * Create a `.env` file in the `/backend` directory.
-    * Start the server:
-        ```sh
-        uvicorn main:app --reload
-        ```
-    > The backend will be running at `http://127.0.0.1:8000`.
+```powershell
+# Navigate to backend
+cd backend
 
-2.  **Setup the Frontend (`/frontend`):**
-    * Open a **new terminal** and navigate to the frontend directory:
-        ```sh
-        cd frontend
-        ```
-    * Install NPM packages:
-        ```sh
-        npm install
-        ```
-    * Start the client:
-        ```sh
-        npm run dev
-        ```
-    > The frontend will be running at `http://localhost:5173`.
+# Create & activate virtual environment (Windows)
+python -m venv venv
+.\venv\Scripts\activate
 
-## Environment Variables
+# Install dependencies
+pip install -r requirements.txt
 
-You need to create a `.env` file in the `backend/` directory for the project to run.
-**If the gemini api doesnt configure to the latest versions, please update the gemini model in the backend main.py and then retry**
+# Create .env file inside backend/ directory
+```
 
-**Backend (`/backend/.env`):**
-```sh
-# A strong, random string used for signing JWTs
+Start the FastAPI server:
+```powershell
+python -m uvicorn main:app --port 8000 --reload
+```
+> Backend runs at `http://127.0.0.1:8000`
+
+#### 2. Setup Frontend (`/frontend`)
+
+Open a new terminal window:
+```powershell
+# Navigate to frontend
+cd frontend
+
+# Install NPM dependencies
+npm install
+
+# Start Vite dev server
+npm run dev
+```
+> Frontend runs at `http://localhost:5173` (or `http://localhost:5174`)
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env` file in the `backend/` directory:
+
+```env
+# Security key for JWT token signing
 SECRET_KEY="your_super_secret_key_here"
 
-# Your API key from Google AI Studio
+# OpenRouter API Configuration (Recommended)
+OPENROUTER_API_KEY="sk-or-v1-your_openrouter_api_key_here"
+OPENROUTER_MODEL_NAME="meta-llama/llama-3.3-70b-instruct"
+
+# Google Gemini API Configuration (Fallback)
 GEMINI_API_KEY="your_gemini_api_key_here"
+GEMINI_MODEL_NAME="gemini-2.5-flash"
+```
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for details.

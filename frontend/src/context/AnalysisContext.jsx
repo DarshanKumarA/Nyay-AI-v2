@@ -96,29 +96,54 @@ export const AnalysisProvider = ({ children }) => {
   // --- REVERTED: Back to simple, non-streaming sendMessage logic ---
   const sendMessage = useCallback(async (question) => {
     const newUserMessage = { role: 'user', parts: [{ text: question }] };
-    setChatHistory(prev => [...prev, newUserMessage]);
+    const loadingMessage = { role: 'model', parts: [{ text: '' }], isLoading: true };
+    
+    // Add user message AND loading indicator to chat history
+    setChatHistory(prev => [...prev, newUserMessage, loadingMessage]);
     setIsChatLoading(true);
 
     try {
+      // Exclude loading message from request payload history
+      const validHistory = chatHistory.filter(msg => !msg.isLoading);
       const requestPayload = {
-        history: chatHistory, 
+        history: validHistory, 
         question: question,
         context: chatContext,
       };
       const response = await sendChatMessage(requestPayload);
       const { response_type, answer, page } = response.data;
 
+      // Clean any raw JSON brackets if returned directly
+      let cleanAnswer = answer || "Sorry, I couldn't process that request.";
+      if (typeof cleanAnswer === 'string' && cleanAnswer.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(cleanAnswer);
+          if (parsed.answer) {
+            cleanAnswer = parsed.answer;
+          }
+        } catch (e) {}
+      }
+
       const aiMessage = { 
         role: 'model', 
-        parts: [{ text: answer }],
-        action: response_type === 'navigate' ? { type: 'navigate', page: page } : null
+        parts: [{ text: cleanAnswer }],
+        action: response_type === 'navigate' ? { type: 'navigate', page: page } : null,
+        isLoading: false
       };
-      setChatHistory(prev => [...prev, aiMessage]);
+
+      // Replace loading message with actual AI response
+      setChatHistory(prev => {
+        const historyWithoutLoading = prev.filter(msg => !msg.isLoading);
+        return [...historyWithoutLoading, aiMessage];
+      });
 
     } catch (error) {
       console.error("Error sending chat message:", error);
-      const errorMessage = { role: 'model', parts: [{ text: "Sorry, I encountered an error. Please try again." }] };
-      setChatHistory(prev => [...prev, errorMessage]);
+      const errorMessage = { role: 'model', parts: [{ text: "Sorry, I encountered an error. Please try again." }], isLoading: false };
+      setChatHistory(prev => {
+        const historyWithoutLoading = prev.filter(msg => !msg.isLoading);
+        return [...historyWithoutLoading, errorMessage];
+      });
     } finally {
       setIsChatLoading(false);
     }

@@ -12,8 +12,11 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # API Keys from the .env file
-    GEMINI_API_KEY: str
+    # API Keys & Models from the .env file
+    GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL_NAME: str = "gemini-2.5-flash"
+    OPENROUTER_API_KEY: Optional[str] = None
+    OPENROUTER_MODEL_NAME: str = "meta-llama/llama-3.3-70b-instruct"
     HF_API_TOKEN: Optional[str] = None # Making this optional as it's not used yet
 
     # Pydantic-settings configuration
