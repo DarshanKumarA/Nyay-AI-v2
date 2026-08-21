@@ -25,7 +25,10 @@ function Sidebar() {
     <div className="sidebar">
       <div className="sidebar-header">
         <VscLaw size={30} />
-        <h1>Nyay AI</h1>
+        <div className="sidebar-header-text">
+          <h1>Nyay AI</h1>
+          <span className="sidebar-subtitle">AI Legal Assistant</span>
+        </div>
       </div>
       <nav className="sidebar-nav">
         <NavLink to="/" end><LuLayoutDashboard /> Dashboard</NavLink>

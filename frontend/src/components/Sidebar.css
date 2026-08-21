@@ -25,6 +25,19 @@
   margin: 0;
 }
 
+.sidebar-header-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-subtitle {
+  font-size: 0.7rem;
+  color: var(--secondary-color);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  margin-top: -2px;
+}
+
 .sidebar-nav {
   display: flex;
   flex-direction: column;

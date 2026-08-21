@@ -125,10 +125,10 @@
 .precedent-details h4 {
   margin-top: 1rem;
   margin-bottom: 0.25rem;
-  color: #aaa;
+  color: #ffffff;
   text-transform: uppercase;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .precedent-details p {
